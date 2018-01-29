@@ -1,27 +1,23 @@
 <template>
+  <div class="app">
+    <section class="code_edit">
 
-    <!--<codemirror v-model="code" :options="cmOptions"></codemirror>-->
-    <div>
-    <!-- or to manually control the datasynchronization（或者手动控制数据流，需要像这样手动监听changed事件） -->
       <codemirror ref="myCm"
-                  :value="code"
+                  v-model="code"
                   :options="cmOptions"
                   @ready="onCmReady"
                   @focus="onCmFocus"
                   @input="onCmCodeChange">
       </codemirror>
-      <div style="width:540px;height:440px;">
-        <iframe src ="http://www.xiami.com/album/8I2Cfte446b?spm=a1z1s.3521865.1997177565.2.HvKjBN&from=searchsubject" width="100%" height="100%" scrolling="yes">
-          <p>Your browser does not support iframes.</p>
-        </iframe>
-
-      </div>
-    </div>
-
+      <button style="align-self: flex-end" @click="submit_code">提交</button>
+    </section>
+    <section class="task_show">{{code}}</section>
+    <section class="response_show">{{response}}</section>
+  </div>
 </template>
 
 <script>
-  import { codemirror } from 'vue-codemirror'
+  import {codemirror} from 'vue-codemirror'
 
   // require styles
   import 'codemirror/lib/codemirror.css'
@@ -65,10 +61,12 @@
           styleActiveLine: true,
           autoCloseBrackets: true,
           line: true,
-          keyMap: "sublime"
-
+          keyMap: "sublime",
           // more codemirror options, 更多 codemirror 的高级配置...
-        }
+        },
+        task: this.code,
+        response: "this is a response"
+
       }
     },
     methods: {
@@ -81,6 +79,16 @@
       onCmCodeChange(newCode) {
         console.log('this is new code', newCode)
         this.code = newCode
+      },
+      submit_code() {
+        axios.get('/pass')
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        console.log(this.code)
       }
     },
     computed: {
@@ -88,9 +96,8 @@
         return this.$refs.myCm.codemirror
       }
     },
-    mounted() {
-      console.log('this is current codemirror object', this.codemirror)
-      // you can use this.codemirror to do something...
+    created() {
+      console.log('this is create codemirror object', this.$refs.myCm)
     },
     components: {
       codemirror
@@ -98,3 +105,36 @@
   }
 </script>
 
+<style>
+  html,body,.app {
+    height: 100%
+  }
+
+  .app {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+  }
+
+  .code_edit  {
+    height: 100%;
+    width:50%;
+  }
+
+  .vue-codemirror,.CodeMirror{
+    height: 100%;
+
+  }
+
+
+  .task_show {
+    height: 50%;
+    width:50%;
+  }
+
+  .response_show {
+    height: 50%;
+    width:50%;
+  }
+
+</style>
